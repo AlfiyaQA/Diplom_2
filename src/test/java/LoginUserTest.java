@@ -14,10 +14,13 @@ public class LoginUserTest {
 
     private UserClient userClient;
     private String token;
+    User user = User.getRandom();
 
     @Before
     public void setUp() {
         userClient = new UserClient();
+        ValidatableResponse createResponse = userClient.createUser(user);
+        token = userClient.getUserToken(createResponse);
     }
 
     @After
@@ -28,12 +31,6 @@ public class LoginUserTest {
     @Test
     @DisplayName("Login using correct data")
     public void loginUsingCorrectData() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
         UserCredentials creds = UserCredentials.from(user);
         ValidatableResponse loginResponse = userClient.loginUser(creds);
 
@@ -46,13 +43,6 @@ public class LoginUserTest {
     @Test
     @DisplayName("Login using incorrect data")
     public void loginUsingIncorrectData() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        UserCredentials creds = UserCredentials.from(user);
         ValidatableResponse loginResponse = userClient.loginUser(new UserCredentials(RandomStringUtils.randomAlphanumeric(5)+"@"+ RandomStringUtils.randomAlphanumeric(5)+".ru", RandomStringUtils.randomAlphanumeric(10)));
 
         int statusCode = loginResponse.extract().statusCode();

@@ -12,6 +12,7 @@ public class CreateUserTest {
 
     private UserClient userClient;
     private String token;
+    User user = User.getRandom();
 
     @Before
     public void setUp() {
@@ -26,11 +27,8 @@ public class CreateUserTest {
     @Test
     @DisplayName("Create new user")
     public void createNewUser() {
-        User user = User.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
+        token = userClient.getUserToken(createResponse);
 
         int statusCode = createResponse.extract().statusCode();
         assertEquals("Код статуса отличается от ожидаемого результата", SC_OK, statusCode);
@@ -41,11 +39,8 @@ public class CreateUserTest {
     @Test
     @DisplayName("Create the same user")
     public void createTheSameUser() {
-        User user = User.getRandom();
         ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
+        token = userClient.getUserToken(createResponse);
         ValidatableResponse createResponse2 = userClient.createUser(user);
 
         int statusCode = createResponse2.extract().statusCode();

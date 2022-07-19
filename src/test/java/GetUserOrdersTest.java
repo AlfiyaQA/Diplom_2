@@ -15,11 +15,16 @@ public class GetUserOrdersTest {
     private UserClient userClient;
     private OrderClient orderClient;
     private String token;
+    User user = User.getRandom();
+    Order order = Order.getOrder();
 
     @Before
     public void setUp() {
         userClient = new UserClient();
+        ValidatableResponse createResponse = userClient.createUser(user);
+        token = userClient.getUserToken(createResponse);
         orderClient = new OrderClient();
+        orderClient.makeOrder(token, order);
     }
 
     @After
@@ -30,14 +35,6 @@ public class GetUserOrdersTest {
     @Test
     @DisplayName("Get user orders after authorization")
     public void getUserOrdersAfterAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        Order order = Order.getOrder();
-        orderClient.makeOrder(token, order);
         ValidatableResponse ordersListResponse = orderClient.getOrders(token);
 
         int statusCode = ordersListResponse.extract().statusCode();
@@ -51,14 +48,6 @@ public class GetUserOrdersTest {
     @Test
     @DisplayName("Get user orders without authorization")
     public void getUserOrdersWithoutAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        Order order = Order.getOrder();
-        orderClient.makeOrder(token, order);
         ValidatableResponse ordersListResponse = orderClient.getOrders("");
 
         int statusCode = ordersListResponse.extract().statusCode();

@@ -18,10 +18,14 @@ public class MakeOrderTest {
     private UserClient userClient;
     private OrderClient orderClient;
     private String token;
+    User user = User.getRandom();
+    Order order = Order.getOrder();
 
     @Before
     public void setUp() {
         userClient = new UserClient();
+        ValidatableResponse createResponse = userClient.createUser(user);
+        token = userClient.getUserToken(createResponse);
         orderClient = new OrderClient();
     }
 
@@ -33,13 +37,6 @@ public class MakeOrderTest {
     @Test
     @DisplayName("Make order after authorization")
     public void makeOrderWithIngredientsAfterAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        Order order = Order.getOrder();
         ValidatableResponse makeOrderResponse = orderClient.makeOrder(token, order);
 
         int statusCode = makeOrderResponse.extract().statusCode();
@@ -54,13 +51,6 @@ public class MakeOrderTest {
     @Test
     @DisplayName("Make order without authorization")
     public void makeOrderWithoutAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        Order order = Order.getOrder();
         ValidatableResponse makeOrderResponse = orderClient.makeOrder("", order);
 
         int statusCode = makeOrderResponse.extract().statusCode();
@@ -73,13 +63,6 @@ public class MakeOrderTest {
     @Test
     @DisplayName("Make order without ingredients")
     public void makeOrderWithoutIngredients() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        Order order = Order.getOrder();
         order.setIngredients(null);
         ValidatableResponse makeOrderResponse = orderClient.makeOrder(token, order);
 
@@ -92,13 +75,6 @@ public class MakeOrderTest {
     @Test
     @DisplayName("Make order with wrong ingredients hash")
     public void makeOrderWithWrongIngredientsHash() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
-        Order order = Order.getOrder();
         order.setIngredients(new String[]{RandomStringUtils.randomAlphanumeric(24), RandomStringUtils.randomAlphanumeric(24), RandomStringUtils.randomAlphanumeric(24)});
         ValidatableResponse makeOrderResponse = orderClient.makeOrder(token, order);
 

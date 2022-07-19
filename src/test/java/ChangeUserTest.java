@@ -14,10 +14,13 @@ public class ChangeUserTest {
 
     private UserClient userClient;
     private String token;
+    User user = User.getRandom();
 
     @Before
     public void setUp() {
         userClient = new UserClient();
+        ValidatableResponse createResponse = userClient.createUser(user);
+        token = userClient.getUserToken(createResponse);
     }
 
     @After
@@ -28,12 +31,6 @@ public class ChangeUserTest {
     @Test
     @DisplayName("Change email with auth")
     public void changeEmailWithAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
         userClient.getUser(token);
         UserInfo newInfo = new UserInfo(RandomStringUtils.randomAlphanumeric(5) + "@" + RandomStringUtils.randomAlphanumeric(5) + ".ru", user.getName());
         ValidatableResponse changeResponse = userClient.changeUser(token, newInfo);
@@ -47,12 +44,6 @@ public class ChangeUserTest {
     @Test
     @DisplayName("Change name with auth")
     public void changeNameWithAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
         userClient.getUser(token);
         UserInfo newInfo = new UserInfo(user.getEmail(), RandomStringUtils.randomAlphanumeric(10));
         ValidatableResponse changeResponse = userClient.changeUser(token, newInfo);
@@ -66,12 +57,6 @@ public class ChangeUserTest {
     @Test
     @DisplayName("Change data without auth")
     public void changeDataWithoutAuth() {
-        User user = User.getRandom();
-        ValidatableResponse createResponse = userClient.createUser(user);
-        String accessToken = createResponse.extract().path("accessToken");
-        String[] split = accessToken.split(" ");
-        token = split[1];
-
         userClient.getUser(token);
         UserInfo newInfo = new UserInfo(RandomStringUtils.randomAlphanumeric(5) + "@" + RandomStringUtils.randomAlphanumeric(5) + ".ru", RandomStringUtils.randomAlphanumeric(10));
         ValidatableResponse changeResponse = userClient.changeUser("", newInfo);

@@ -6,8 +6,7 @@ import model.Order;
 
 public class OrderClient extends RestAssuredClient {
 
-    private final String ORDERMAKE = "/orders";
-    private final String ORDERGET = "/orders";
+    private final String ORDER = "/orders";
 
     @Step("Making order")
     public ValidatableResponse makeOrder(String token, Order order) {
@@ -15,7 +14,7 @@ public class OrderClient extends RestAssuredClient {
                 .auth().oauth2(token)
                 .body(order)
                 .when()
-                .post(ORDERMAKE)
+                .post(ORDER)
                 .then().log().all();
     }
 
@@ -24,7 +23,7 @@ public class OrderClient extends RestAssuredClient {
         return reqSpec
                 .auth().oauth2(token)
                 .when()
-                .get(ORDERGET)
+                .get(ORDER)
                 .then().log().all();
     }
 }

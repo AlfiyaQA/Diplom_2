@@ -7,16 +7,13 @@ import model.UserCredentials;
 import model.UserInfo;
 import static org.apache.http.HttpStatus.*;
 
-
 public class UserClient extends RestAssuredClient {
 
     private final String REGISTRATION = "/auth/register";
     private final String LOGIN = "/auth/login";
-    private final String USERINFO = "/auth/user";
-    private final String USERCHANGE = "/auth/user";
-    private final String USERDELETE = "/auth/user";
+    private final String USER = "/auth/user";
 
-    @Step("Create new user")
+   @Step("Create new user")
     public ValidatableResponse createUser(User user) {
         return reqSpec
                 .body(user)
@@ -39,7 +36,7 @@ public class UserClient extends RestAssuredClient {
         return reqSpec
                 .auth().oauth2(token)
                 .when()
-                .get(USERINFO)
+                .get(USER)
                 .then().log().all();
     }
 
@@ -49,7 +46,7 @@ public class UserClient extends RestAssuredClient {
                 .auth().oauth2(token)
                 .body(newInfo)
                 .when()
-                .patch(USERCHANGE)
+                .patch(USER)
                 .then().log().all();
     }
 
@@ -58,8 +55,19 @@ public class UserClient extends RestAssuredClient {
         reqSpec
                .auth().oauth2(token)
                .when()
-               .delete(USERDELETE)
+               .delete(USER)
                .then().log().all().assertThat()
                .statusCode(SC_ACCEPTED);
+    }
+
+    @Step("Get user token")
+    public String getUserToken(ValidatableResponse createResponse) {
+        String accessToken = createResponse.extract().path("accessToken");
+        if (accessToken != null) {
+            String[] split = accessToken.split(" ");
+            return split[1];
+        } else {
+            return null;
+        }
     }
 }
